@@ -1,0 +1,219 @@
+
+class TokenizerError(Exception):
+    pass
+
+class BadRegexError(TokenizerError):
+    pass
+
+class EqualityComparisonError(TokenizerError):
+    pass
+
+class Character:
+    __slots__ = ('char', 'caret', 'dot')
+
+    def __init__(self, char: str, caret: bool = False, dot: bool = False):
+        self.char = char
+        self.caret = caret
+        self.dot = dot
+
+    def __eq__(self, other) -> bool:
+
+        if isinstance(other, Character):
+            return self.char == other.char \
+                and self.caret == other.caret \
+                and self.dot == other.dot
+
+        elif isinstance(other, str):
+            if self.dot: return True
+
+            buffer = self.char == other
+            return buffer if not self.caret else not buffer
+        else:
+            raise EqualityComparisonError(f'Type {type(other)} is not supported')
+
+
+    def __str__(self) -> str:
+        if self.caret: return f'Character<^{self.char}>'
+        else: return f'Character<{self.char}>'
+
+    def __repr__(self) -> str:
+        return str(self)
+
+class Concatenation:
+    def __str__(self) -> str:
+        return 'Concatenation'
+
+    def __repr__(self) -> str:
+        return str(self)
+
+#Concatenation = _Concatenation()
+
+class Disjunction:
+    def __str__(self) -> str:
+        return 'Disjunction'
+
+    def __repr__(self) -> str:
+        return str(self)
+
+#Disjunction = _Disjunction()
+
+class Operator:
+    __slots__ = ('op')
+    
+    def __init__(self, op: str):
+        self.op = op
+
+    def __str__(self) -> str:
+        return f'Operator<{self.op}>'
+
+    def __repr__(self) -> str:
+        return str(self)
+
+    def __eq__(self, other) -> bool:
+        return self.op == other.op
+
+class Variable:
+    __slots__ = ('var')
+
+    def __init__(self, var: str):
+        self.var = var
+
+    def __str__(self) -> str:
+        return f'Variable<{self.var}>'
+
+    def __repr__(self) -> str:
+        return str(self)
+
+    def __eq__(self, other) -> bool:
+        if isinstance(other, Variable):
+            return self.var == other.var
+        
+        if isinstance(other, str):
+            return self.var == other
+
+def add_anchors(pattern: str) -> str:
+    pattern = pattern[1:] if pattern.startswith('^') else '.*' + pattern
+    pattern = pattern[:-1] if pattern.endswith('$') else pattern + '.*'
+
+    return pattern
+
+def __to_postfix(pattern: str) -> list:
+    stack = []
+    natoms = 0
+    in_parenthesis = False
+    buffer = []
+    nalt = 0
+    escape = False
+    caret = False
+    nonpenparenthesis = 0
+
+    for character in pattern:
+
+        if character == '\\':
+            if in_parenthesis:
+                buffer.append(character)
+
+            else:
+                escape = True
+        
+        elif escape:
+            # like '^\"$'
+            # just add wahtever follows escape
+            if in_parenthesis:
+                buffer.append(character)
+            
+            else:
+                if natoms > 1:
+                    stack.append(Concatenation())
+                    natoms = -1
+
+                stack.append(Character(character, caret))
+                caret = False
+                natoms += 1
+            
+            escape = False
+            continue
+
+        elif in_parenthesis and character != ')':
+            # accumulate symbols in parenthesis
+            # before applying to postfix
+
+            if character == '(':
+                nonpenparenthesis += 1
+
+            buffer.append(character)
+            continue
+
+        elif character == '^':
+            caret = True
+
+        elif character in '+*?':
+            if natoms == 0:
+                raise BadRegexError(f'No arguments for operator {character}')
+
+            if isinstance(stack[-1], Operator):
+                raise BadRegexError(f'Two operators second operator {character}')
+
+            stack.append(Operator(character))
+
+        elif character == '|':
+            if natoms == 0:
+                raise BadRegexError(f'No arguments for operator {character}')
+
+            natoms -= 1
+            while natoms:
+                stack.append(Concatenation())
+                natoms -= 1
+
+            nalt += 1
+
+        elif character == '(':
+            # group in parenthesis starts
+            in_parenthesis = True
+            nonpenparenthesis += 1
+
+        elif character == ')':
+            nonpenparenthesis -= 1
+
+            # if nested parenthesis
+            if nonpenparenthesis != 0:
+                buffer.append(')')
+                continue
+
+            in_parenthesis = False
+            expression = __to_postfix(''.join(buffer))
+
+            if expression is None:
+                raise BadRegexError('Incorrect expression in parenthesis')
+
+            buffer = []
+            if natoms > 1:
+                stack.append(Concatenation())
+                natoms -= 1
+
+            stack.extend(expression)
+            natoms += 1
+
+        else:
+            # regular character
+            if natoms > 1:
+                stack.append(Concatenation())
+                natoms -= 1
+
+            character_ = Character(character, caret, character == '.')
+            stack.append(character_)
+            caret = False
+            natoms += 1
+
+    if natoms > 1:
+        stack.append(Concatenation())
+
+    while nalt:
+        stack.append(Disjunction())
+        nalt -= 1
+
+    return stack
+
+def to_postfix(pattern: str) -> list:
+    pattern = add_anchors(pattern)
+    return __to_postfix(pattern)
