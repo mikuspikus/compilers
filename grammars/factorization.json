@@ -1,0 +1,103 @@
+{
+    "terminals" : [
+        {
+            "name" : "i",
+            "spell" : "IDENTi"
+        },
+        {
+            "name" : "e",
+            "spell" : "IDENTe"
+        },
+        {
+            "name" : "a",
+            "spell" : "IDENTa"
+        },
+        {
+            "name" : "b",
+            "spell" : "IDENTb"
+        },
+        {
+            "name" : "t",
+            "spell" : "IDENTt"
+        },
+        {
+            "name" : "ε",
+            "spell" : "EMPTY"
+        }
+    ],
+    "nonterminals" : [
+        {"name" : "S"},
+        {"name" : "E"}
+    ],
+    "productions" : [
+        {
+            "name" : "S",
+            "elements" : [
+                {
+                    "is_terminal" : true,
+                    "name" : "i"
+                },
+                {
+                    "is_terminal" : false,
+                    "name" : "E"
+                },
+                {
+                    "is_terminal" : true,
+                    "name" : "t"
+                },
+                {
+                    "is_terminal" : false,
+                    "name":"S"
+                }
+            ]
+        },
+        {
+            "name" : "S",
+            "elements" : [
+                {
+                    "is_terminal" : true,
+                    "name" : "i"
+                },
+                {
+                    "is_terminal":false,
+                    "name":"E"
+                },
+                {
+                    "is_terminal":true,
+                    "name":"t"
+                },
+                {
+                    "is_terminal":false,
+                    "name":"S"
+                },
+                {
+                    "is_terminal":true,
+                    "name":"e"
+                },
+                {
+                    "is_terminal":false,
+                    "name":"S"
+                }
+            ]
+        },
+        {
+            "name" : "S",
+            "elements" : [
+                {
+                    "is_terminal" : true,
+                    "name" : "a"
+                }
+            ]
+        },
+        {
+            "name" : "E",
+            "elements" : [
+                {
+                    "is_terminal" : true,
+                    "name" : "b"
+                }
+            ]
+        }
+    ],
+    "startsymbol" : {"name" : "S"}
+}

@@ -10,19 +10,25 @@ def _from_json(path: str) -> dict:
 
 def _testRecursion():
     import os
-    filename = 'test.json'
+    filename = 'recursion.json'
     dirname = os.path.dirname(__file__)
-    path = os.path.join(dirname, filename)
+    lr_path = os.path.join(dirname, filename)
 
-    json = _from_json(path)
+    json = _from_json(lr_path)
 
     grammar = Grammar.build(json)
 
     grammar.removeLeftRecursion()
-
     grammar.clean()
-
     asJson = JsonConvert.toJSON(grammar)
+    print(asJson)
+
+
+    lf_path = os.path.join(dirname, 'factorization.json')
+    json = _from_json(lf_path)
+    lf_grammar = Grammar.build(json)
+    lf_grammar.leftFactorization()
+    asJson = JsonConvert.toJSON(lf_grammar)
     print(asJson)
 
 
