@@ -150,47 +150,52 @@ class Grammar:
         return result
 
     def leftFactorization(self) -> None:
-        for nonterminal in self.nonterminals:
+        for nonterminal in self.nonterminals.copy():
             productions = self._findProductionsByName(nonterminal)
 
-            for production in productions:
+            for production in productions.copy():
                 buffer = ProductionElement(nonterminal.name, False)
 
-                if buffer in production.elements:
-                    productions.remove(buffer)
+                if buffer not in production.elements:
+                    productions.remove(production)
 
-            if productions:
-                alpha = frozenset(productions[0].tupilize())
+            if not productions: continue
 
-                for production in productions:
-                    alpha = alpha.intersection(
-                        frozenset(production.tupilize())
-                    )
+            alpha = frozenset(productions[0].tupilize())
 
-                if not alpha:
-                    return
-
-                new_elements = _listize(alpha, self.nonterminals)
-                new_elements.append(ProductionElement(f"{nonterminal.value}^", False))
-
-                self.productions.append(
-                    Production(nonterminal.value, new_elements)
+            for production in productions:
+                alpha = alpha.intersection(
+                    frozenset(production.tupilize())
                 )
 
-                for production in productions:
-                    self.productions.remove(production)
+            if not alpha:
+                continue
 
-                    for new_element in new_elements:
-                        production.elements.remove(new_element)
+            new_elements = _listize(alpha, self.nonterminals)
+            new_nonterminal = f"{nonterminal.name}^"
+            new_elements.append(ProductionElement(new_nonterminal, False))
 
-                    if not production.elements:
-                        production.elements.append(
-                            ProductionElement('e', True)
-                        )
+            self.productions.append(
+                Production(nonterminal.name, new_elements)
+            )
 
-                    self.productions.append(
-                        Production(
-                            f"{nonterminal.value}^",
-                            production.elements
-                        )
+            for production in productions:
+                self.productions.remove(production)
+
+                for new_element in new_elements[:-1]:
+                    production.elements.remove(new_element)
+
+                if not production.elements:
+                    production.elements.append(
+                        ProductionElement(self._findEpsilon().name, True)
                     )
+
+                self.productions.append(
+                    Production(
+                        new_nonterminal,
+                        production.elements
+                    )
+                )
+
+
+            self.nonterminals.append(NonTerminal(new_nonterminal))

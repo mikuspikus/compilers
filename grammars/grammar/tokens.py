@@ -133,7 +133,7 @@ class Production:
                 self.elements.remove(element)
 
     def tupilize(self) -> List[ProductionSymbol]:
-        return [ProductionSymbol(index, value.value) for index, value in enumerate(self.elements)]
+        return [ProductionSymbol(index, value.name) for index, value in enumerate(self.elements)]
 
     @staticmethod
     def build(json: dict):

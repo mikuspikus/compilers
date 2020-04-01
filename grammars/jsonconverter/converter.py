@@ -41,8 +41,8 @@ class JsonConvert(object):
         return path
  
     @classmethod
-    def fromFile(cls, filepath):
+    def fromFile(cls, filepath: str):
         result = None
         with open(filepath, 'r') as jfile:
-            result = cls.FromJSON(jfile.read())
+            result = cls.fromJSON(jfile.read())
         return result
