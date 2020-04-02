@@ -1,0 +1,41 @@
+{
+    "terminals" : [
+        {
+            "name" : "a",
+            "spell" : "IDENTa"
+        },
+        {
+            "name" : "b",
+            "spell" : "IDENTb"
+        },
+        {
+            "name" : "ε",
+            "spell" : "EMPTY"
+        }
+    ],
+    "nonterminals" : [
+        {"name" : "S"},
+        {"name" : "B"}
+    ],
+    "productions" : [
+        {
+            "name" : "S",
+            "elements" : [
+                {
+                    "is_terminal" : true,
+                    "name" : "a"
+                }
+            ]
+        },
+        {
+            "name" : "B",
+            "elements" : [
+                {
+                    "is_terminal" : true,
+                    "name" : "b"
+                }
+            ]
+        }
+    ],
+    "startsymbol" : {"name" : "S"}
+}
