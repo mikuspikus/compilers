@@ -31,6 +31,13 @@ def _testRecursion():
     asJson = JsonConvert.toJSON(lf_grammar)
     print(asJson)
 
+    r_path = os.path.join(dirname, 'reachable.json')
+    json = _from_json(r_path)
+    r_grammar = Grammar.build(json)
+    new_r_grammar = r_grammar.removeUnreachableDFS()
+
+    print(JsonConvert.toJSON(new_r_grammar))
+
 
 if __name__ == "__main__":
     _testRecursion()

@@ -1,5 +1,5 @@
 import json
-from typing import List, FrozenSet, Union
+from typing import List, FrozenSet, Union, Set
 from .tokens import NonTerminal, Terminal, ProductionSymbol, Production, ProductionElement, StartSymbol
 from jsonconverter.converter import JsonConvert
 
@@ -199,3 +199,65 @@ class Grammar:
 
 
             self.nonterminals.append(NonTerminal(new_nonterminal))
+
+    def removeUnreachableDFS(self):
+        reachable_nt_s = self._reachableDFS()
+
+        new_nt_s = [NonTerminal(nt) for nt in reachable_nt_s]
+        new_production_s = [production for production in self.productions if production.name in reachable_nt_s]
+
+        return Grammar(
+            terminals=self.terminals,
+            nonterminals=new_nt_s,
+            productions=new_production_s,
+            startsymbol=self.startsymbol
+        )
+
+    def _reachableDFS(self) -> Set[str]:
+        reachable = set()
+
+        def dfs(nonterminal: str) -> None:
+            reachable.add(nonterminal)
+
+            for rnt_element in filter(lambda pr : pr.name == nonterminal, self.productions):
+                if rnt_element.name not in reachable:
+                    dfs(rnt_element.name)
+
+        dfs(self.startsymbol.name)
+
+        return reachable
+
+    def removeUnreachable(self):
+        v = frozenset(self.startsymbol.name)
+
+        nonterminals = set(map(lambda nt : nt.name, self.nonterminals))
+        new_productions = []
+
+        for nonterminal in self.nonterminals:
+            productions = filter(lambda p : p.name == nonterminal.name, self.productions)
+            new_productions += productions
+
+            reachable = []
+            for production in productions:
+                reachable += [element.name for element in production.elements if element.name in nonterminals]
+
+            new_v = frozenset(reachable + list(v))
+
+            # new_v is subset of v
+            if new_v <= v:
+                v = new_v
+
+            else:
+                break
+        
+
+        return Grammar(
+            terminals = self.terminals,
+            nonterminals=[NonTerminal(nt_name) for nt_name in v],
+            productions=new_productions,
+            startsymbol=self.startsymbol
+        )
+        
+
+
+            
