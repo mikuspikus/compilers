@@ -3,6 +3,11 @@ from typing import List, FrozenSet, Union, Set
 from .tokens import NonTerminal, Terminal, ProductionSymbol, Production, ProductionElement, StartSymbol
 from jsonconverter.converter import JsonConvert
 
+def readJson(path: str) -> dict:
+    with open(path) as file:
+        result = json.load(file)
+
+    return result
 
 def _key(symbol: ProductionSymbol):
     return symbol.index
@@ -59,35 +64,36 @@ class Grammar:
 
                 productions = self._findProduction(a_i, a_i)
 
-                if productions:
-                    left_productions = self._findProductionsByName(a_i)
+                if not productions: continue
 
-                    self.nonterminals.append(
-                        NonTerminal(name=f"{a_i.name}'"))
+                left_productions = self._findProductionsByName(a_i)
 
-                    for production in left_productions:
-                        if production not in productions:
-                            production.elements.append(
-                                ProductionElement(
-                                    name=f"{a_i.name}'",
-                                    is_terminal=False
-                                )
+                self.nonterminals.append(
+                    NonTerminal(name=f"{a_i.name}'"))
+
+                for production in left_productions:
+                    if production not in productions:
+                        production.elements.append(
+                            ProductionElement(
+                                name=f"{a_i.name}'",
+                                is_terminal=False
                             )
-
-                        else:
-                            self.productions.remove(production)
-                            self.productions.append(
-                                self._createWithApostrophe(production, a_i))
-
-                    self.productions.append(
-                        Production(
-                            name=f"{a_i.name}'",
-                            elements=[ProductionElement(
-                                name='e', is_terminal=True)]
                         )
-                    )
 
-        # self.clean()
+                    else:
+                        self.productions.remove(production)
+                        self.productions.append(
+                            self._createWithApostrophe(production, a_i))
+
+                self.productions.append(
+                    Production(
+                        name=f"{a_i.name}'",
+                        elements=[ProductionElement(
+                            name='e', is_terminal=True)]
+                    )
+                )
+
+        self.clean()
     
     def _findEpsilon(self):
         epsilons = [terminal for terminal in self.terminals if terminal.spell == EMPTY]
@@ -239,38 +245,3 @@ class Grammar:
         dfs(self.startsymbol.name)
 
         return reachable
-
-    def removeUnreachable(self):
-        v = frozenset(self.startsymbol.name)
-
-        nonterminals = set(map(lambda nt : nt.name, self.nonterminals))
-        new_productions = []
-
-        for nonterminal in self.nonterminals:
-            productions = filter(lambda p : p.name == nonterminal.name, self.productions)
-            new_productions += productions
-
-            reachable = []
-            for production in productions:
-                reachable += [element.name for element in production.elements if element.name in nonterminals]
-
-            new_v = frozenset(reachable + list(v))
-
-            # new_v is subset of v
-            if new_v <= v:
-                v = new_v
-
-            else:
-                break
-        
-
-        return Grammar(
-            terminals = self.terminals,
-            nonterminals=[NonTerminal(nt_name) for nt_name in v],
-            productions=new_productions,
-            startsymbol=self.startsymbol
-        )
-        
-
-
-            

@@ -2,7 +2,7 @@ from grammar.grammar import Grammar
 from jsonconverter.converter import JsonConvert
 import json
 
-def _from_json(path: str) -> dict:
+def readJson(path: str) -> dict:
     with open(path) as file:
         result = json.load(file)
 
@@ -10,33 +10,37 @@ def _from_json(path: str) -> dict:
 
 def _testRecursion():
     import os
-    filename = 'recursion.json'
+
+    folder = 'grammar/testjson/'
+    filename = folder + 'recursion.json'
     dirname = os.path.dirname(__file__)
     lr_path = os.path.join(dirname, filename)
+    
 
-    json = _from_json(lr_path)
+    json = readJson(lr_path)
 
     grammar = Grammar.build(json)
-
+    print(f'{lr_path} grammar', {'t' : len(grammar.terminals), 'nt' : len(grammar.nonterminals), 'pr' : len(grammar.productions)})
     grammar.removeLeftRecursion()
-    grammar.clean()
-    asJson = JsonConvert.toJSON(grammar)
-    print(asJson)
+    print(f'{lr_path} clean grammar', {'t' : len(grammar.terminals), 'nt' : len(grammar.nonterminals), 'pr' : len(grammar.productions)})
 
-
-    lf_path = os.path.join(dirname, 'factorization.json')
-    json = _from_json(lf_path)
+    filename = folder + 'factorization.json'
+    lf_path = os.path.join(dirname, filename)
+    json = readJson(lf_path)
     lf_grammar = Grammar.build(json)
+
+    print(f'{lf_path} grammar', {'t' : len(lf_grammar.terminals), 'nt' : len(lf_grammar.nonterminals), 'pr' : len(lf_grammar.productions)})
     lf_grammar.leftFactorization()
-    asJson = JsonConvert.toJSON(lf_grammar)
-    print(asJson)
+    print(f'{lf_path} cleaned grammar', {'t' : len(lf_grammar.terminals), 'nt' : len(lf_grammar.nonterminals), 'pr' : len(lf_grammar.productions)})
 
-    r_path = os.path.join(dirname, 'reachable.json')
-    json = _from_json(r_path)
+    filename = folder + 'reachable.json'
+    r_path = os.path.join(dirname, filename)
+    json = readJson(r_path)
     r_grammar = Grammar.build(json)
-    new_r_grammar = r_grammar.removeUnreachableDFS()
 
-    print(JsonConvert.toJSON(new_r_grammar))
+    print(f'{r_path} grammar', {'t' : len(r_grammar.terminals), 'nt' : len(r_grammar.nonterminals), 'pr' : len(r_grammar.productions)})
+    new_r_grammar = r_grammar.removeUnreachableDFS()
+    print(f'{r_path} cleaned grammar', {'t' : len(r_grammar.terminals), 'nt' : len(r_grammar.nonterminals), 'pr' : len(r_grammar.productions)})
 
 
 if __name__ == "__main__":
