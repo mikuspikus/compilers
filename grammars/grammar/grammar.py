@@ -201,19 +201,32 @@ class Grammar:
             self.nonterminals.append(NonTerminal(new_nonterminal))
 
     def removeUnreachableDFS(self):
-        reachable_nt_s = self._reachableDFS()
+        reachable_nt_s = self._reachableNonTerminals()
 
         new_nt_s = [NonTerminal(nt) for nt in reachable_nt_s]
         new_production_s = [production for production in self.productions if production.name in reachable_nt_s]
+        
+        reachable_terminals = self._reachableTerminals(new_production_s)
+        new_terminals = [t for t in self.terminals if t.name in reachable_terminals]
 
         return Grammar(
-            terminals=self.terminals,
+            terminals=new_terminals,
             nonterminals=new_nt_s,
             productions=new_production_s,
             startsymbol=self.startsymbol
         )
 
-    def _reachableDFS(self) -> Set[str]:
+    def _reachableTerminals(self, r_productions: List[Production]) -> Set[str]:
+        reachable_t_s = set()
+
+        for production in r_productions:
+            for element in production.elements:
+                if element.is_terminal and element.name not in reachable_t_s:
+                    reachable_t_s.add(element.name)
+
+        return reachable_t_s
+
+    def _reachableNonTerminals(self) -> Set[str]:
         reachable = set()
 
         def dfs(nonterminal: str) -> None:
