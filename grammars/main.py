@@ -1,5 +1,4 @@
-from grammar.grammar import Grammar
-from jsonconverter.converter import JsonConvert
+from .grammar.grammar import Grammar
 import json
 
 def readJson(path: str) -> dict:
