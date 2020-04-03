@@ -124,7 +124,7 @@ def equation_to_postfix(delta: set, equation: str) -> list:
 
     return stack
 
-def __replace_variable(equation: list, variable: str, variable_expression: list) -> list:
+def replace_variable(equation: list, variable: str, variable_expression: list) -> list:
     position_s = []
     result = equation[:]
 

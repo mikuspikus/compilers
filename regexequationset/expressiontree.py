@@ -1,4 +1,4 @@
-from nfaregexp.tokenizer import Character, Concatenation, Disjunction, Operator, Variable
+from .nfaregexp.tokenizer import Character, Concatenation, Disjunction, Operator, Variable
 from typing import Union, Tuple
 
 import copy

@@ -1,7 +1,5 @@
 from unittest import TestCase
-
 from .grammar import Grammar, readJson
-from unittest import TestCase
 
 class TestGrammar(TestCase):
 
