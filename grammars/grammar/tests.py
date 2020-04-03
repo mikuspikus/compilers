@@ -4,7 +4,7 @@ from .grammar import Grammar, readJson
 class TestGrammar(TestCase):
 
     def setUp(self):
-        folder = 'grammar/testjson'
+        folder = 'grammars/grammar/testjson'
         self.reachable = f'{folder}/reachable.json'
         self.factorization = f'{folder}/factorization.json'
         self.recursion = f'{folder}/recursion.json'

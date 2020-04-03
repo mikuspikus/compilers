@@ -1,16 +1,14 @@
 from collections import namedtuple
-from jsonconverter.converter import JsonConvert
 from typing import Union, List
 
 
-ProductionSymbol = namedtuple('ProductionSymbol', ['index', 'value'])
+ProductionSymbol = namedtuple("ProductionSymbol", ["index", "value"])
 
 
-@JsonConvert.register
 class Terminal:
     # __slots__ = ('name', 'spell')
 
-    def __init__(self, name: str = '', spell: str = ''):
+    def __init__(self, name: str = "", spell: str = ""):
         self.name = name
         self.spell = spell
 
@@ -22,16 +20,15 @@ class Terminal:
 
     @staticmethod
     def build(json: dict):
-        assert set(('name', 'spell')) <= json.keys()
+        assert set(("name", "spell")) <= json.keys()
 
-        return Terminal(name=json['name'], spell=json['spell'])
+        return Terminal(name=json["name"], spell=json["spell"])
 
 
-@JsonConvert.register
 class NonTerminal:
     # __slots__ = ('name', )
 
-    def __init__(self, name: str = ''):
+    def __init__(self, name: str = ""):
         self.name = name
 
     def __str__(self) -> str:
@@ -49,16 +46,15 @@ class NonTerminal:
 
     @staticmethod
     def build(json: dict):
-        assert set(('name', )) <= json.keys()
+        assert set(("name",)) <= json.keys()
 
-        return NonTerminal(name=json['name'])
+        return NonTerminal(name=json["name"])
 
 
-@JsonConvert.register
 class StartSymbol:
     # __slots__ = ('name', )
 
-    def __init__(self, name: str = ''):
+    def __init__(self, name: str = ""):
         self.name = name
 
     def __str__(self) -> str:
@@ -69,16 +65,15 @@ class StartSymbol:
 
     @staticmethod
     def build(json: dict):
-        assert set(('name', )) <= json.keys()
+        assert set(("name",)) <= json.keys()
 
-        return StartSymbol(name=json['name'])
+        return StartSymbol(name=json["name"])
 
 
-@JsonConvert.register
 class ProductionElement:
     # __slots__ = ('name', 'is_terminal')
 
-    def __init__(self, name: str = '', is_terminal: bool = False):
+    def __init__(self, name: str = "", is_terminal: bool = False):
         self.name = name
         self.is_terminal = is_terminal
 
@@ -97,16 +92,15 @@ class ProductionElement:
 
     @staticmethod
     def build(json: dict):
-        assert set(('name', 'is_terminal')) <= json.keys()
+        assert set(("name", "is_terminal")) <= json.keys()
 
-        return ProductionElement(name=json['name'], is_terminal=json['is_terminal'])
+        return ProductionElement(name=json["name"], is_terminal=json["is_terminal"])
 
 
-@JsonConvert.register
 class Production:
     # __slots__ = ('name', 'elements')
 
-    def __init__(self, name: str = '', elements: List[ProductionElement] = None):
+    def __init__(self, name: str = "", elements: List[ProductionElement] = None):
         self.name = name
         self.elements = elements if elements else []
 
@@ -133,12 +127,14 @@ class Production:
                 self.elements.remove(element)
 
     def tupilize(self) -> List[ProductionSymbol]:
-        return [ProductionSymbol(index, value.name) for index, value in enumerate(self.elements)]
+        return [
+            ProductionSymbol(index, value.name)
+            for index, value in enumerate(self.elements)
+        ]
 
     @staticmethod
     def build(json: dict):
-        assert set(('name', 'elements')) <= json.keys()
+        assert set(("name", "elements")) <= json.keys()
 
-        elements = [ProductionElement.build(
-            el_json) for el_json in json['elements']]
-        return Production(name=json['name'], elements=elements)
+        elements = [ProductionElement.build(el_json) for el_json in json["elements"]]
+        return Production(name=json["name"], elements=elements)

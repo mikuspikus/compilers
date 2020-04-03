@@ -1,7 +1,6 @@
 import json
 from typing import List, FrozenSet, Union, Set
 from .tokens import NonTerminal, Terminal, ProductionSymbol, Production, ProductionElement, StartSymbol
-from jsonconverter.converter import JsonConvert
 
 def readJson(path: str) -> dict:
     with open(path) as file:
@@ -20,7 +19,6 @@ def _listize(cet: FrozenSet[ProductionSymbol], nonterminals: List["NonTerminal"]
 
 EMPTY = 'EMPTY'
 
-@JsonConvert.register
 class Grammar:
     # __slots__ = ('terminals', 'nonterminals', 'productions', 'startsymbol')
 
