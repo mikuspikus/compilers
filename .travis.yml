@@ -7,3 +7,4 @@ install:
 script:
   - python -m unittest regexequationset/nfaregexp/tests.py
   - python -m unittest grammars/grammar/tests.py
+  - python -m unittest parser/test.py
