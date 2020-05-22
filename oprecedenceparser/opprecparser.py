@@ -1,7 +1,10 @@
 from typing import Tuple, Union
 # add exceptions
+
+
 class OpPrecError(Exception):
     pass
+
 
 class OpPrecParser:
     rel_op = ['==', '<>', '<', '<=', '>', '>=']
@@ -12,45 +15,59 @@ class OpPrecParser:
     dollar = '$'
     expression = 'E'
 
-    def __init__(self, input: str):
-        self.input = input
-        string = input
+    def __init__(self):
+        pass
 
     def __precedence(self, stack_token: str, next_token: str) -> Union[None, str]:
         if stack_token in self.unary_op:
-            if next_token in self.add_op + self.rel_op + self.mul_op + [')', self.dollar]: return '>' 
-            else: return '<'
+            if next_token in self.add_op + self.rel_op + self.mul_op + [')', self.dollar]:
+                return '>'
+            else:
+                return '<'
 
         if stack_token in self.add_op:
-            if next_token in self.add_op + self.rel_op + [')', self.dollar]: return '>' 
-            else: return '<'
+            if next_token in self.add_op + self.rel_op + [')', self.dollar]:
+                return '>'
+            else:
+                return '<'
 
         if stack_token in self.mul_op:
-            if next_token in self.add_op + self.mul_op + self.rel_op + [')', self.dollar]: return '>'
-            else: return '<'
+            if next_token in self.add_op + self.mul_op + self.rel_op + [')', self.dollar]:
+                return '>'
+            else:
+                return '<'
 
         if stack_token in self.rel_op:
-            if next_token in self.rel_op + [')', self.dollar]: return '>'
-            else: return '<'
+            if next_token in self.rel_op + [')', self.dollar]:
+                return '>'
+            else:
+                return '<'
 
         if stack_token in self.numbers:
-            if next_token in self.add_op + self.mul_op + self.rel_op + [')', self.dollar]: return '>'
-            else: return None
+            if next_token in self.add_op + self.mul_op + self.rel_op + [')', self.dollar]:
+                return '>'
+            else:
+                return None
 
         if stack_token == '(':
-            if next_token in self.unary_op + self.add_op + self.mul_op + self.rel_op + self.numbers + ['(', ')']: return '<' 
-            else: return None
+            if next_token in self.unary_op + self.add_op + self.mul_op + self.rel_op + self.numbers + ['(', ')']:
+                return '<'
+            else:
+                return None
 
         if stack_token == ')':
-            if next_token in self.unary_op + self.add_op + self.mul_op + self.rel_op + [')', self.dollar]: return '>'
-            else: return None
+            if next_token in self.unary_op + self.add_op + self.mul_op + self.rel_op + [')', self.dollar]:
+                return '>'
+            else:
+                return None
 
         if stack_token == '$':
-            if next_token in self.unary_op + self.add_op + self.mul_op + self.rel_op + self.numbers + ['(']: return '<'
-            else: return None
+            if next_token in self.unary_op + self.add_op + self.mul_op + self.rel_op + self.numbers + ['(']:
+                return '<'
+            else:
+                return None
 
         return None
-
 
     def parse(self, input: str) -> list:
         stack = [self.dollar]
@@ -68,7 +85,8 @@ class OpPrecParser:
             if priority is None:
                 # raise exception -- priority not found
                 # return None
-                raise OpPrecError(f"Precedence not found for pair ({last_token}, {current_token})")
+                raise OpPrecError(
+                    f"Precedence not found for pair ({last_token}, {current_token})")
 
             if priority == '>':
                 string = current_token + string
@@ -100,25 +118,25 @@ class OpPrecParser:
                 else:
                     # raise exception -- stack is empty
                     # return None
-                    raise OpPrecError(f"Stack is empty for token {current_token} and string {string}")
+                    raise OpPrecError(
+                        f"Stack is empty for token {current_token} and string {string}")
             else:
                 stack.append(current_token)
 
         return stpostfix
-        
 
         while not stack == ['$', 'E'] and string != '$':
             next_roken = self.__peek_next_token()
 
-    def __next_token(self, string : str) -> Tuple[str, str]:
-        current_token= string[0]
+    def __next_token(self, string: str) -> Tuple[str, str]:
+        current_token = string[0]
 
         if current_token in ('>', '=') and len(string) > 1 and string[1] == '=':
             current_token += self.input[1]
             string = string[2:]
 
         if current_token in ('<', ) and len(string) > 1 and string[1] in ('=', '>'):
-            current_token =+ self.input[1]
+            current_token = + self.input[1]
             string = string[2:]
 
         else:
@@ -134,19 +152,35 @@ class OpPrecParser:
         """
         if len(stack) == 3:
             # ( E ) reduction case
-            if stack == ['(', self.expression, ')']: return self.expression
+            if stack == ['(', self.expression, ')']:
+                return self.expression
             # E +/*/... E reduction case
-            if stack[0] == stack[2] == self.expression and stack[1] in self.add_op + self.rel_op + self.mul_op: return self.expression
+            if stack[0] == stack[2] == self.expression and stack[1] in self.add_op + self.rel_op + self.mul_op:
+                return self.expression
 
         # ~ E reduction case
-        elif len(stack) == 2 and stack[0] in self.unary_op and stack[1] == self.expression: return self.expression
+        elif len(stack) == 2 and stack[0] in self.unary_op and stack[1] == self.expression:
+            return self.expression
         # number reduction case
-        elif len(stack) == 1 and stack[0] in self.numbers: return self.expression
+        elif len(stack) == 1 and stack[0] in self.numbers:
+            return self.expression
 
         return None
 
+
 if __name__ == "__main__":
-    input = '1 * ~ ( 2 + 3 )'
-    parser = OpPrecParser(input)
-    postfix = parser.parse(input)
-    print(postfix)
+    cases = [
+        ('1 + 2 * 3', ['1', '2', '3', '*', '+']),
+        ('( 1 + 2 ) * 3', ['1', '2', '+', '3', '*']),
+        ('~ 1 + 2 * 3', ['1', '~', '2', '3', '*', '+']),
+        ('~ ( 1 + 2 ) * 3', ['1', '2', '+', '~', '3', '*']),
+        ('~ ( 1 * 2 * 3)', ['1', '2', '*', '3', '*', '~'])
+        ('1 * ~ ( 2 + 3 )', ['1', '2', '3', '+', '~', '*']),
+        ('1 > 2 > 3 * 4', ['1', '2', '>', '3', '4', '*', '>']),
+        ('( 1 > 2 ) + 3 * 4', ['1', '2', '>', '3', '4', '*', '+']),
+    ]
+
+    parser = OpPrecParser()
+
+    for string, _ in cases:
+        print(parser.parse(string))
