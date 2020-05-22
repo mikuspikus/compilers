@@ -9,7 +9,7 @@ class OpPrecError(Exception):
 class OpPrecParser:
     rel_op = ['==', '<>', '<', '<=', '>', '>=']
     add_op = ['+', '-', 'or']
-    mul_op = ['*', '/', 'div', 'mod', 'and']
+    mul_op = ['*', '/']
     unary_op = ['~']
     numbers = [str(i) for i in range(10)]
     dollar = '$'
