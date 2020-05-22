@@ -132,11 +132,11 @@ class OpPrecParser:
         current_token = string[0]
 
         if current_token in ('>', '=') and len(string) > 1 and string[1] == '=':
-            current_token += self.input[1]
+            current_token += string[1]
             string = string[2:]
 
-        if current_token in ('<', ) and len(string) > 1 and string[1] in ('=', '>'):
-            current_token = + self.input[1]
+        elif current_token in ('<', ) and len(string) > 1 and string[1] in ('=', '>'):
+            current_token += string[1]
             string = string[2:]
 
         else:
@@ -174,10 +174,11 @@ if __name__ == "__main__":
         ('( 1 + 2 ) * 3', ['1', '2', '+', '3', '*']),
         ('~ 1 + 2 * 3', ['1', '~', '2', '3', '*', '+']),
         ('~ ( 1 + 2 ) * 3', ['1', '2', '+', '~', '3', '*']),
-        ('~ ( 1 * 2 * 3)', ['1', '2', '*', '3', '*', '~'])
+        ('~ ( 1 * 2 * 3)', ['1', '2', '*', '3', '*', '~']),
         ('1 * ~ ( 2 + 3 )', ['1', '2', '3', '+', '~', '*']),
-        ('1 > 2 > 3 * 4', ['1', '2', '>', '3', '4', '*', '>']),
+        ('1 >= 2 <= 3 * 4', ['1', '2', '>', '3', '4', '*', '>']),
         ('( 1 > 2 ) + 3 * 4', ['1', '2', '>', '3', '4', '*', '+']),
+        ('1 <> 2', ['1', '2', '<>']),
     ]
 
     parser = OpPrecParser()
