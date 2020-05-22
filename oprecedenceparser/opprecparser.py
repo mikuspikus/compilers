@@ -1,4 +1,7 @@
 from typing import Tuple, Union
+# add exceptions
+class OpPrecError(Exception):
+    pass
 
 class OpPrecParser:
     rel_op = ['==', '<>', '<', '<=', '>', '>=']
@@ -13,7 +16,7 @@ class OpPrecParser:
         self.input = input
         string = input
 
-    def __priority(self, stack_token: str, next_token: str) -> Union[None, str]:
+    def __precedence(self, stack_token: str, next_token: str) -> Union[None, str]:
         if stack_token in self.unary_op:
             if next_token in self.add_op + self.rel_op + self.mul_op + [')', self.dollar]: return '>' 
             else: return '<'
@@ -61,9 +64,11 @@ class OpPrecParser:
                 stnumbers.append(current_token)
 
             last_token = [x for x in stack if x != self.expression][-1]
-            priority = self.__priority(last_token, current_token)
+            priority = self.__precedence(last_token, current_token)
             if priority is None:
-                return None
+                # raise exception -- priority not found
+                # return None
+                raise OpPrecError(f"Precedence not found for pair ({last_token}, {current_token})")
 
             if priority == '>':
                 string = current_token + string
@@ -72,7 +77,7 @@ class OpPrecParser:
                     #  try reduction from the end
                     slice_ = stack[-i:]
                     # reduction result
-                    lhs_nterm = self.__term_of_rule(slice_)
+                    lhs_nterm = self.__rule_reduction(slice_)
 
                     if lhs_nterm is not None:
                         stack = stack[:-i]
@@ -93,7 +98,9 @@ class OpPrecParser:
                             stpostfix.append(slice_[1])
                         break
                 else:
-                    return None
+                    # raise exception -- stack is empty
+                    # return None
+                    raise OpPrecError(f"Stack is empty for token {current_token} and string {string}")
             else:
                 stack.append(current_token)
 
@@ -119,7 +126,7 @@ class OpPrecParser:
 
         return string, current_token
 
-    def __term_of_rule(self, stack: list):
+    def __rule_reduction(self, stack: list):
         """
         ( E ) -> E
         E +/*/... E -> E
@@ -139,7 +146,7 @@ class OpPrecParser:
         return None
 
 if __name__ == "__main__":
-    input = '~ ( 1 + 2 * 3 )'
+    input = '1 * ~ ( 2 + 3 )'
     parser = OpPrecParser(input)
     postfix = parser.parse(input)
     print(postfix)
