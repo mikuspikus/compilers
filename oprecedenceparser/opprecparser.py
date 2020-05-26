@@ -125,9 +125,6 @@ class OpPrecParser:
 
         return stpostfix
 
-        while not stack == ['$', 'E'] and string != '$':
-            next_roken = self.__peek_next_token()
-
     def __next_token(self, string: str) -> Tuple[str, str]:
         current_token = string[0]
 
