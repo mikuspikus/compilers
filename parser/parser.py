@@ -3,15 +3,6 @@ from typing import Tuple, Any, Union
 class ParseError(Exception):
     pass
 
-# class Op:
-#     def __init__(self, op: str, left = None, right = None):
-#         self.op = op
-#         self.left = left
-#         self.right = right
-
-
-
-
 class RDParser:
     # <expr> -> <simple_expr> | <simple_expr> <rel_op> <simple_expr>
 
@@ -199,7 +190,7 @@ class RDParser:
             has_term_mul_factor, term_mul_factor = self.term_mul_factor()
             if has_term_mul_factor: return True, ('term', term_mul_factor)
 
-            return ('term', factor)        
+            return ('term', factor)
 
         return False, None
 
