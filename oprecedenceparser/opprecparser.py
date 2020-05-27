@@ -95,11 +95,11 @@ class OpPrecParser:
                     #  try reduction from the end
                     slice_ = stack[-i:]
                     # reduction result
-                    lhs_nterm = self.__rule_reduction(slice_)
+                    reduction = self.__rule_reduction(slice_)
 
-                    if lhs_nterm is not None:
+                    if reduction is not None:
                         stack = stack[:-i]
-                        stack.append(lhs_nterm)
+                        stack.append(reduction)
 
                         # [~ E] case
                         if len(slice_) == 2 and slice_[0] in self.unary_op:
